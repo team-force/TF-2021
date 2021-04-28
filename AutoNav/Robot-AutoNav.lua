@@ -31,7 +31,7 @@ function sysCall_init()
     ort_inicial = sim.getObjectOrientation(Robot, Field)
 
     --- Crea "tablas" o "arrays" con valor de (x,y)
-    punto1 = crearPosicion(pulgadasMetros(90),  pulgadasMetros(60))
+    punto1 = crearPosicion(pulgadasMetros(90),  pulgadasMetros(60)) -- punto D en Geogebra
     punto2 = crearPosicion(pulgadasMetros(270),  pulgadasMetros(60))
     punto3 = crearPosicion(pulgadasMetros(313),  pulgadasMetros(38))
     punto4 = crearPosicion(pulgadasMetros(313),  pulgadasMetros(81))
@@ -42,27 +42,12 @@ function sysCall_init()
     radio3 = pulgadasMetros(55.35)
     radio4 = pulgadasMetros(26.22)
 
-    -- Una lista de "tablas" dond
-    orden = {
-        {p= punto1, r=radio1},
-        {p= punto2, r=radio2},
-        {p= punto3, r=radio3},
-        {p= punto4, r=radio4},
-        {p= punto2, r=radio3},
-        {p= punto1, r=radio2},
-        {p= punto5, r=radio1}
-    }
-
-    pieza = 1
-    segmento = orden[pieza]
-    meta = segmento.p
-    radio = segmento.r
-
+   
     v_act = 0
     w_act = 0
 
-
-    
+    radio_actual = radio1 -- Inicializamos el radio_actual
+    print(punto2)
 end
 
 -- una funcion que toma una velocidad 
@@ -91,39 +76,35 @@ function sysCall_actuation()
     -- Giro sobre su eje
     --girar(v_0)
 
-    -- Giro en un arco
-    --arco(v_0, pulgadasMetros(60))
+    -- Cambiar el radio_actual segun el punto al queramos llegar:
+    -- Para esto, revisamo la cercania del robot al punto en cuestion
+    -- Ya pos_actual tiene (x,y) del robot, y punto1 tiene (x,y) del objetivo
 
+    --Cuando esta suficientemente cerca, cambia el radio actual
+    print(calcDistancia(pos_actual, punto1))
+    if ( calcDistancia(pos_actual, punto1) < 0.21 ) then -- Si el robot esta en menos
+       radio_actual = radio2
+       print("Radio2")
+    elseif (calcDistancia(pos_actual, punto2) < 0.12) then
+        radio_actual = radio3
+        print("Radio3")
+       
+    end
+    --[[ Giro en un arco
+    arco(v_0, radio_actual)
+    --]]
+    
 
 end
 
 function sysCall_sensing()
     -- put your sensing code here
-    actualizarUI()
+    
+    --actualizarUI()
 end
 
 function sysCall_cleanup()
     -- do some clean-up here
-end
-
-function recorrer_segmentos()
-    if pieza < 1 then 
-        avanzar(0)
-        return
-    end
-
-    arco(v_0, radio)
-    distancia = calcDistancia(meta, pos_actual)
-    --print( string.format("Distancia: %.4f, (%0.4f, %.4f)", distancia, punto1[1], punto1[2]))
-    if distancia < 0.20 then
-        print("Cerca.")
-        pieza = (pieza <= #orden) and pieza + 1 or 0
-        segmento = orden[pieza]
-        meta = segmento.p
-        radio = segmento.r
-        print(string.format("Nuevo Objetivo: %d (%.4f, %.4f)", pieza, meta[1], meta[2]))
-        v_0 = pieza == 4 and v_0*0.5 or v_0
-    end
 end
 
 function motorD(vel)
