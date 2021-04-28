@@ -47,6 +47,7 @@ function sysCall_init()
     w_act = 0
 
     radio_actual = radio1 -- Inicializamos el radio_actual
+    print(sim.getJointTargetVelocity(MD))
     print(punto2)
 end
 
@@ -82,19 +83,32 @@ function sysCall_actuation()
 
     --Cuando esta suficientemente cerca, cambia el radio actual
     print(calcDistancia(pos_actual, punto1))
-    if ( calcDistancia(pos_actual, punto1) < 0.21 ) then -- Si el robot esta en menos
+    if ( calcDistancia(pos_actual, punto1) < 0.07 ) then -- Si el robot esta en menos
        radio_actual = radio2
        print("Radio2")
-    elseif (calcDistancia(pos_actual, punto2) < 0.12) then
+    elseif (calcDistancia(pos_actual, punto2) < 0.15) then
         radio_actual = radio3
         print("Radio3")
        
     end
-    --[[ Giro en un arco
-    arco(v_0, radio_actual)
+    -- [[ Giro en un arco
+    avanzar(4*v_0)
+    -- arco(v_0, radio_actual) -- le aplica velocidad a motores
     --]]
     
-
+    --Hipotesis 1: arco() aplica una velocidad, y cleanup() usa mover() para "guardar" velocidad 0
+        -- Prueba de validación: Correr para darle velocidad; darle a stop (guardaría vel= 0), 
+        --      Si se comenta la llamada de arco(), al darle Play, se usaría la vel guardada (0)
+            --- NO FUNCIONO: se volvió a mover.
+    -- Hipotesis 2: No se ejecutó cleanup()
+        -- Validación:  imprimir algo en cleanup()
+            ----- NO FUNCIONO: cleanup() sí se está ejecutando.
+    -- Hipotesis 3: En realidad no se "guarda" la ultima velocidad (en este caso mover(0,0) en cleanup)
+        -- Validación: Hacer que la ultima velocidad sea diferente de (0,0)
+    -- Hipótesis 4: mover() en cleanup() no tiene efecto.
+        -- Validación: imprimir en cleanup la velocidad "guardada" (que registran los joints)
+    -- Hipótesis 5: La "última velocidad" no es la de cleanup() sino la ultima que tuvo efecto.
+        -- Validación: Se manda una velocidad diferente con arco(), se detiene, se comenta arco() y reinicia 
 end
 
 function sysCall_sensing()
@@ -105,6 +119,9 @@ end
 
 function sysCall_cleanup()
     -- do some clean-up here
+    mover(0,0) --No parece tener ningun efecto
+    print("Cerrando")
+    print(sim.getJointTargetVelocity(MD))
 end
 
 function motorD(vel)
