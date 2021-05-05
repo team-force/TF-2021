@@ -3,6 +3,8 @@ function sysCall_init()
    
     Robot = sim.getObjectHandle(sim.handle_self)
     Field = sim.getObjectHandle("Field")
+
+    camara = sim.getObjectHandle("Camara_Sensor")
     -- Declarar variables para manipular los joints
     -- Cuales joints necesitamos para mover al robot?
     
@@ -58,7 +60,6 @@ function sysCall_actuation()
     -- Codigo de actuacion (acción) del robot
     
     pos_actual = leerPosicionRobot()
-    --print( string.format("Posición: (%.4f, %.4f)", pos_actual[1], pos_actual[2]) )
     
     --[[ Ejercicio: 
     Cambiar el arco según la ubicación del robot.
@@ -74,9 +75,6 @@ function sysCall_actuation()
     
     --]]
 
-    -- Giro sobre su eje
-    --girar(v_0)
-
     -- Cambiar el radio_actual segun el punto al queramos llegar:
     -- Para esto, revisamo la cercania del robot al punto en cuestion
     -- Ya pos_actual tiene (x,y) del robot, y punto1 tiene (x,y) del objetivo
@@ -91,24 +89,7 @@ function sysCall_actuation()
         print("Radio3")
        
     end
-    -- [[ Giro en un arco
-    avanzar(4*v_0)
-    -- arco(v_0, radio_actual) -- le aplica velocidad a motores
-    --]]
-    
-    --Hipotesis 1: arco() aplica una velocidad, y cleanup() usa mover() para "guardar" velocidad 0
-        -- Prueba de validación: Correr para darle velocidad; darle a stop (guardaría vel= 0), 
-        --      Si se comenta la llamada de arco(), al darle Play, se usaría la vel guardada (0)
-            --- NO FUNCIONO: se volvió a mover.
-    -- Hipotesis 2: No se ejecutó cleanup()
-        -- Validación:  imprimir algo en cleanup()
-            ----- NO FUNCIONO: cleanup() sí se está ejecutando.
-    -- Hipotesis 3: En realidad no se "guarda" la ultima velocidad (en este caso mover(0,0) en cleanup)
-        -- Validación: Hacer que la ultima velocidad sea diferente de (0,0)
-    -- Hipótesis 4: mover() en cleanup() no tiene efecto.
-        -- Validación: imprimir en cleanup la velocidad "guardada" (que registran los joints)
-    -- Hipótesis 5: La "última velocidad" no es la de cleanup() sino la ultima que tuvo efecto.
-        -- Validación: Se manda una velocidad diferente con arco(), se detiene, se comenta arco() y reinicia 
+
 end
 
 function sysCall_sensing()
@@ -138,10 +119,6 @@ function motorI(vel)
     sim.setJointTargetVelocity(MID,vel)
 end
 
--- Una Funcion que tome una velocidad y se la pase a los motores
---[[
-        velocidad(30) --> motorI(30), motorD(30)
---]]
 
 function avanzar(vel)
     mover(vel,vel)
