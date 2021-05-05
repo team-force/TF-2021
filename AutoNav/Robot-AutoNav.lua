@@ -4,7 +4,15 @@ function sysCall_init()
     Robot = sim.getObjectHandle(sim.handle_self)
     Field = sim.getObjectHandle("Field")
 
+    -- Sensores: Camara
     camara = sim.getObjectHandle("Camara_Sensor")
+
+    -- Sensores: Sonares
+    SFrente_D = sim.getObjectHandle("SFrente_Der") 
+    SFrente_I = sim.getObjectHandle("SFrente_Izq") 
+    SLado_D = sim.getObjectHandle("SLado_Der") 
+    SLado_I = sim.getObjectHandle("SLado_Izq") 
+
     -- Declarar variables para manipular los joints
     -- Cuales joints necesitamos para mover al robot?
     
@@ -61,26 +69,12 @@ function sysCall_actuation()
     
     pos_actual = leerPosicionRobot()
     
-    --[[ Ejercicio: 
-    Cambiar el arco según la ubicación del robot.
-    1. Usar la imagen del NavChallenge o Geogebra para calcular la ubicación (en metros) X,Y de los puntos de inicio de cada segmento
-        - Usar las funciones pos = crearPosicion(x,y) y mtr = pulgadasMetros(in)  para guardar las posiciones (la imagen usa pulgadas)
-        - Guardar las posiciones en variables como punto1, punto2, punto3, etc.
-    
-    2. Usar Geogebra para calcular el Radio de un círculo que una los puntos de inicio de cada segmento.
-    
-    3. Usar la función arco(v, radio) para mover el robot en cada uno de los radios calculados,
-        - Observar si el robot hace el movimiento que se espera.
-        - Usar un radio negativo mueve el robot "a la derecha" (con las manecillas del reloj)
-    
-    --]]
-
-    -- Cambiar el radio_actual segun el punto al queramos llegar:
+     -- Cambiar el radio_actual segun el punto al queramos llegar:
     -- Para esto, revisamo la cercania del robot al punto en cuestion
     -- Ya pos_actual tiene (x,y) del robot, y punto1 tiene (x,y) del objetivo
 
     --Cuando esta suficientemente cerca, cambia el radio actual
-    print(calcDistancia(pos_actual, punto1))
+    --print(calcDistancia(pos_actual, punto1))
     if ( calcDistancia(pos_actual, punto1) < 0.07 ) then -- Si el robot esta en menos
        radio_actual = radio2
        print("Radio2")
@@ -90,11 +84,26 @@ function sysCall_actuation()
        
     end
 
+    -- Avanzar hasta dejar de detectar a la izq
+    avanzar(3*v_0)
+    -- Girar en arco suave a la izq hasta que SFrente_I vea
+    -- el marcador más cercano :
+    -- arco(v_0, radio1)
+    -- Detenerme cuando SFrente_D vea al marcador más cercano
+    -- avanzar(0)
+
 end
 
 function sysCall_sensing()
     -- put your sensing code here
     
+    local r, dist_LI = sim.readProximitySensor(SLado_I)
+    local r, dist_FI = sim.readProximitySensor(SFrente_I)
+    local r, dist_LD = sim.readProximitySensor(SLado_D)
+    local r, dist_FD = sim.readProximitySensor(SFrente_D)
+
+    radio1 = dist_LI + 0.48
+    print({dist_LI, dist_FI, dist_LD, dist_FD})
     --actualizarUI()
 end
 
