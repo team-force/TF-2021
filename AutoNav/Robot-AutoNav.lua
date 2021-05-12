@@ -59,6 +59,16 @@ function sysCall_init()
     radio_actual = radio1 -- Inicializamos el radio_actual
     print(sim.getJointTargetVelocity(MD))
     print(punto2)
+
+    caso = 1
+    r1, dist_LI = 0, 100
+    r2, dist_FI = 0, 100
+    r3, dist_FD = 0, 100
+    r4, dist_LD = 0, 100
+
+    LI_pos = {0.30, 0.375}
+    LI_h = 0.48023 -- Distancia entre centro del robot y Sensor_LI
+
 end
 
 -- una funcion que toma una velocidad 
@@ -69,41 +79,86 @@ function sysCall_actuation()
     
     pos_actual = leerPosicionRobot()
     
-     -- Cambiar el radio_actual segun el punto al queramos llegar:
-    -- Para esto, revisamo la cercania del robot al punto en cuestion
-    -- Ya pos_actual tiene (x,y) del robot, y punto1 tiene (x,y) del objetivo
+    --[[
+        1. Avanzar hasta encontrar a la izq.
+            ¿Cómo entro?
+                Si estamos iniciando (Caso 1)
+            ¿Cómo salgo?
+                Si estoy en Caso 1 y detecto del LI
 
-    --Cuando esta suficientemente cerca, cambia el radio actual
-    --print(calcDistancia(pos_actual, punto1))
-    if ( calcDistancia(pos_actual, punto1) < 0.07 ) then -- Si el robot esta en menos
-       radio_actual = radio2
-       print("Radio2")
-    elseif (calcDistancia(pos_actual, punto2) < 0.15) then
-        radio_actual = radio3
-        print("Radio3")
-       
+        2. Avanzar hasta dejar de detectar en la izq.
+            ¿Cómo entro?
+                Y estoy en Caso 1 Cuando detecto del LI
+            ¿Cómo salgo?
+                Cuando dejo de detectar en LI
+
+        3. Girar en arco hasta detectar
+            ¿Cómo entro?
+                Cuando dejo de detectar en LI
+            ¿Cómo salgo?
+                Cuando detecto en LI
+
+        4. Mantener el arco hasta detectar X distancia en el sens de la derecha.
+            ¿Cómo entro?
+            *Cuando detecto en LI 
+            ¿Cómo salgo?
+                Cuando LD mide <= X distancia.
+    --]] 
+
+    if caso == 1 then
+        if r1 == 0 then
+            avanzar(4*v_0) 
+        else -- detectamos algo en LI
+            caso = 2
+        end 
+
+    elseif caso == 2 then
+        if r1 ~= 0 then
+            avanzar(4*v_0) 
+            ultima_LI = dist_LI
+        else -- detectamos algo en LI
+            caso = 3
+        end 
+    elseif caso == 3 then
+        if r1 == 0 then
+            radio_c3 = (LI_h + ultima_LI)*0.707
+            arco(v_0, radio_c3)
+            print(radio_c3)
+        else
+            caso = 4
+        end
+    elseif caso == 4 then
+        print("Caso 4")
+        arco(v_0, radio_c3) 
     end
-
-    -- Avanzar hasta dejar de detectar a la izq
-    avanzar(3*v_0)
-    -- Girar en arco suave a la izq hasta que SFrente_I vea
-    -- el marcador más cercano :
-    -- arco(v_0, radio1)
-    -- Detenerme cuando SFrente_D vea al marcador más cercano
-    -- avanzar(0)
-
+    
+    
 end
 
 function sysCall_sensing()
     -- put your sensing code here
     
-    local r, dist_LI = sim.readProximitySensor(SLado_I)
-    local r, dist_FI = sim.readProximitySensor(SFrente_I)
-    local r, dist_LD = sim.readProximitySensor(SLado_D)
-    local r, dist_FD = sim.readProximitySensor(SFrente_D)
+    r1, dist_LI = sim.readProximitySensor(SLado_I)
+    r2, dist_FI = sim.readProximitySensor(SFrente_I)
+    r3, dist_FD = sim.readProximitySensor(SFrente_D)
+    r4, dist_LD = sim.readProximitySensor(SLado_D)
 
-    radio1 = dist_LI + 0.48
-    print({dist_LI, dist_FI, dist_LD, dist_FD})
+    if r1 == 0 then
+        dist_LI = 100
+    end
+    if r2 == 0 then
+        dist_FI = 100
+    end
+    if r3 == 0 then
+        dist_FD = 100
+    end
+    if r4 == 0 then
+        dist_LD = 100
+    end
+
+
+    --print({dist_LI, dist_FI, dist_FD, dist_LD})
+
     --actualizarUI()
 end
 
