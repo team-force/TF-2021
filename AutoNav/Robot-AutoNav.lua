@@ -120,19 +120,38 @@ function sysCall_actuation()
             caso = 3
         end 
     elseif caso == 3 then
-        if r1 == 0 then
-            radio_c3 = (LI_h + ultima_LI)*0.707
+        if dist_LD > pulgadasMetros(30) then
+            radio_c3 = radio_objetivo_cono()
             arco(v_0, radio_c3)
-            print(radio_c3)
         else
             caso = 4
         end
+        print(dist_LD)
     elseif caso == 4 then
         print("Caso 4")
-        arco(v_0, radio_c3) 
+        avanzar(0)
     end
     
     
+end
+
+function radio_objetivo_cono()
+    --[[ Calcula el radio de un arco que une al robot
+         con un punto paralelo al cono que detecta 
+         sensor del LadoI (por ahora forzado)
+    --]]
+
+    -- Calcular Radio de un arco que una los dos puntos
+    -- Calcular la Curvatura (Y=1/r)
+    local dist_cono_punto = pulgadasMetros(20)
+    local dX = (LI_h + ultima_LI)*0.707 
+    local l = dX
+    local L = l + dist_cono_punto
+    local beta = math.atan2(L, dX)
+    local D = L/math.sin(beta)
+    local R = D^2/(2*dX)
+    return R    
+
 end
 
 function sysCall_sensing()
@@ -156,7 +175,7 @@ function sysCall_sensing()
         dist_LD = 100
     end
 
-
+    
     --print({dist_LI, dist_FI, dist_FD, dist_LD})
 
     --actualizarUI()
