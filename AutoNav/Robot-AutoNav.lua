@@ -103,7 +103,11 @@ function sysCall_actuation()
             *Cuando detecto en LI 
             ¿Cómo salgo?
                 Cuando LD mide <= X distancia.
-    --]] 
+    --]]
+    
+    --[[
+        Opción 1: avanzar hasta que LD deje de ver el objeto
+    ]]
 
     if caso == 1 then
         if r1 == 0 then
@@ -114,7 +118,7 @@ function sysCall_actuation()
 
     elseif caso == 2 then
         if r1 ~= 0 then
-            avanzar(4*v_0) 
+            avanzar(6*v_0) 
             ultima_LI = dist_LI
         else -- detectamos algo en LI
             caso = 3
@@ -128,8 +132,15 @@ function sysCall_actuation()
         end
         print(dist_LD)
     elseif caso == 4 then
-        print("Caso 4")
+        if r4 == 1 then
+            avanzar(v_0)
+        else
+            caso = 5
+        end
+    elseif caso == 5 then
         avanzar(0)
+        print("Caso 5")
+        caso = 25
     end
     
     
