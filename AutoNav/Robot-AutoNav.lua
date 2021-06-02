@@ -71,10 +71,15 @@ function sysCall_init()
 
 end
 
+-- TEMPORAL Para trabajar con la pelota
+function sysCall_actuation()
+
+end
+
 -- una funcion que toma una velocidad 
 -- y le manda la misma a los otros motores
 
-function sysCall_actuation()
+function sysCall_actuation_AutoNav()
     -- Codigo de actuacion (acción) del robot
     
     pos_actual = leerPosicionRobot()
@@ -170,7 +175,7 @@ function radio_objetivo_cono()
 
     -- Calcular Radio de un arco que una los dos puntos
     -- Calcular la Curvatura (Y=1/r)
-    
+
     -- Para extender la distancia frontal del punto
     local dist_cono_punto = pulgadasMetros(30)
     local dX = (LI_h + ultima_LI)*0.707
