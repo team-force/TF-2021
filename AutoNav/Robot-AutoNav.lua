@@ -111,7 +111,7 @@ function sysCall_actuation()
 
     if caso == 1 then
         if r1 == 0 then
-            avanzar(4*v_0) 
+            avanzar(6*v_0) 
         else -- detectamos algo en LI
             caso = 2
         end 
@@ -119,7 +119,10 @@ function sysCall_actuation()
     elseif caso == 2 then
         if r1 ~= 0 then
             avanzar(6*v_0) 
+            -- Gire para mantener una dista X del cono
             ultima_LI = dist_LI
+            print(dist_LI)
+            --caso = 3
         else -- detectamos algo en LI
             caso = 3
         end 
@@ -127,19 +130,32 @@ function sysCall_actuation()
         if dist_LD > pulgadasMetros(30) then
             radio_c3 = radio_objetivo_cono()
             arco(v_0, radio_c3)
+            print(radio_c3)
         else
             caso = 4
         end
         print(dist_LD)
     elseif caso == 4 then
         if r4 == 1 then
-            avanzar(v_0)
+            avanzar(3*v_0)
         else
             caso = 5
         end
     elseif caso == 5 then
+        if r4 == 0 then
+            arco(v_0, -radio_c3)
+        else
+            caso = 6
+        end
+    elseif caso == 6 then
+        if r4 == 1 then
+            arco(v_0, -0.9*radio_c3)
+        else
+            caso = 7
+        end
+    elseif caso == 7 then
         avanzar(0)
-        print("Caso 5")
+        print("Stop")
         caso = 25
     end
     
@@ -154,10 +170,14 @@ function radio_objetivo_cono()
 
     -- Calcular Radio de un arco que una los dos puntos
     -- Calcular la Curvatura (Y=1/r)
-    local dist_cono_punto = pulgadasMetros(20)
-    local dX = (LI_h + ultima_LI)*0.707 
+    
+    -- Para extender la distancia frontal del punto
+    local dist_cono_punto = pulgadasMetros(30)
+    local dX = (LI_h + ultima_LI)*0.707
     local l = dX
     local L = l + dist_cono_punto
+    -- Para extender la distancia lateral del punto
+    dX = dX + pulgadasMetros(30)
     local beta = math.atan2(L, dX)
     local D = L/math.sin(beta)
     local R = D^2/(2*dX)
