@@ -13,7 +13,7 @@ function pelota_en_zona()
     if detectedObjectHandle then
         -- local x = sim.getObjectPosition(detectedObjectHandle,SensorAbajo)
         -- print(x)
-        x = {0,0,0}
+        local x = {0,0,0}
         -- print(x)
         -- Linea: ubica un objeto (detectObjectHandle), en la posicion X, con respecto a handDummie
         sim.setObjectPosition(detectedObjectHandle, handDummie, x)

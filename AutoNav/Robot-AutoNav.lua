@@ -211,7 +211,7 @@ function sysCall_sensing()
         dist_LD = 100
     end
 
-    
+    leerCamara()
     --print({dist_LI, dist_FI, dist_FD, dist_LD})
 
     --actualizarUI()
@@ -314,4 +314,20 @@ end
 -- See the user manual or the available code snippets for additional callback functions and details
 function strPosicion(pos)
     return string.format("(%.4f, %.4f)", pos[1], pos[2])
+end
+
+
+function leerCamara()
+    -- lee especificamente el Vision Sensor que corresponde al limelight
+
+    -- pk1 tiene la info sobre colores de la imagen
+    -- pk2 tiene los resultados de la deteccion de objetos
+    local r, pk1, pk2 = sim.readVisionSensor(camara)
+
+
+    if r>0 then
+        print(pk1)
+        print("------")
+        print(pk2)
+    end
 end
