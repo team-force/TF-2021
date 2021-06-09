@@ -47,7 +47,7 @@ function leerCamaraBlobs(sensor)
     --number trigger,string packedPacket=
     --simVision.blobDetectionOnWorkImg(
     --    number handle,number threshold,number minBlobSize,bool diffColor,table_3 overlayColor={1.0,0.0,1.0}))
-    local trig, pack = simVision.blobDetectionOnWorkImg(sensor, 0.1, .005, false, {1.0,0.0,1.0})
+    local trig, pack = simVision.blobDetectionOnWorkImg(sensor, 0.1, .0005, false, {1.0,0.0,1.0})
     -- local detect =  sim.unpackFloatTable(pack)
     simVision.workImgToSensorImg(sensor)
     -- Buscar un color para hacerle blob detection

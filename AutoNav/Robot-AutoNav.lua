@@ -27,10 +27,17 @@ function sysCall_init()
     MD = sim.getObjectHandle("DriveDer")
     MDA = sim.getObjectHandle("Joint_DA")
     MDD = sim.getObjectHandle("Joint_DD")
-    
+
+    -- Motores del disparador
+
+    ShooterD = sim.getObjectHandle("MotorShooterD")
+    ShooterI = sim.getObjectHandle("MotorShooterI")
+
+    --- Variables de velocidad de traslacion
     v_0 = 0.3
     v_max = 0.50 -- m/s
 
+    --- Dimensiones del robot
     D_rueda = 1.522e-1 -- metros -- Medir en CoppeliaSim tamaño de la rueda
     -- Radio de ruedas
     R_rueda = D_rueda/2 --metros
@@ -69,11 +76,13 @@ function sysCall_init()
     LI_pos = {0.30, 0.375}
     LI_h = 0.48023 -- Distancia entre centro del robot y Sensor_LI
 
+    pelota = nil
 end
 
 -- TEMPORAL Para trabajar con la pelota
 function sysCall_actuation()
-
+    velocidadDisparador(36)
+    print(pelota)
 end
 
 -- una funcion que toma una velocidad 
@@ -211,7 +220,7 @@ function sysCall_sensing()
         dist_LD = 100
     end
 
-    leerCamara()
+    pelota = leerCamara()
     --print({dist_LI, dist_FI, dist_FD, dist_LD})
 
     --actualizarUI()
@@ -324,10 +333,49 @@ function leerCamara()
     -- pk2 tiene los resultados de la deteccion de objetos
     local r, pk1, pk2 = sim.readVisionSensor(camara)
 
-
+    --[[
     if r>0 then
         print(pk1)
         print("------")
         print(pk2)
     end
+    --]]
+
+    local num_blobs, num_vars, size, x, y
+    local ind_size, ind_x, ind_y = 1, 3, 4
+
+    num_blobs = pk2[1]
+    num_vars = pk2[2]
+    size = 0
+    local ind_max =  0
+    -- buscar el blob más grande (sería el más cercano)
+    for i=1,num_blobs do
+        local ind_busq = 2+(i-1)*num_vars
+        local s = pk2[ind_busq+ind_size]
+        if s > size then 
+            size = s
+            ind_max = ind_busq
+        end
+    end
+
+    x = pk2[ind_max+ind_x] - 0.5
+    y = pk2[ind_max+ind_y]
+
+    return {x,y}
+end
+
+function velocidadDisparador(pc)
+    local gear_ratio = 36 -- 36:1
+    local max_rpm = 5700
+    local max_rad = max_rpm * 2 *math.pi/60
+    local max = max_rad/gear_ratio -- rad/s
+
+    -- Asigna un porcentaje de la velocidad maxima
+    -- pc : porcentaje (0 - 1)
+    local w = pc * max  -- en realidad permite >1 
+
+    sim.setJointTargetVelocity(ShooterD, w)
+    sim.setJointTargetVelocity(ShooterD, w)
+
+    -- print(string.format("Shooter: %0.3f", w))
 end
