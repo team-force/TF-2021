@@ -76,13 +76,32 @@ function sysCall_init()
     LI_pos = {0.30, 0.375}
     LI_h = 0.48023 -- Distancia entre centro del robot y Sensor_LI
 
-    pelota = nil
+    pelota = {-1, -1}
 end
 
 -- TEMPORAL Para trabajar con la pelota
 function sysCall_actuation()
     velocidadDisparador(36)
     print(pelota)
+
+    --- Como usar la posicion de la pelota para girar el robot (para alinearse con ella)
+    --- y para avanzar (para saber cuándo dejar de avanzar)
+    local X,Y = pelota[1], pelota[2]
+    local K_x = 2*v_max  --- deberia ser vmax de giro  y no de avance...
+    -- Dos acciones:
+    -- Girar (orientarse/alinearse)
+    ---- Calcular velocidad de giro (w) según X
+        local w = 0    
+        if X ~= -1 then
+            w = -K_x * X  ----  X: -0.5  -> w lo más grande posible (positivo)
+        end
+    -- Avanzar
+    ---- Calcular velocidad de avance (v) según Y
+        local v = 0
+
+    -- Pasar a los motores
+    desplazar(v,w)
+
 end
 
 -- una funcion que toma una velocidad 
@@ -349,6 +368,11 @@ function leerCamara()
     size = 0
     local ind_max =  0
     -- buscar el blob más grande (sería el más cercano)
+
+    if num_blobs == 0 then
+        return {-1, -1} -- devolver valores imposibles si no hay blobs
+    end
+
     for i=1,num_blobs do
         local ind_busq = 2+(i-1)*num_vars
         local s = pk2[ind_busq+ind_size]

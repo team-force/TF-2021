@@ -1,6 +1,7 @@
 function GSearch_init()
 -- do some initialization here
     SensorAbajo = sim.getObjectHandle(sim.handle_self);
+    pelotaAttach = sim.getObjectHandle('Attach_Pelota0');
     handDummie = sim.getObjectHandle('BolaSuperior');
 end
 
@@ -16,7 +17,9 @@ function pelota_en_zona()
         local x = {0,0,0}
         -- print(x)
         -- Linea: ubica un objeto (detectObjectHandle), en la posicion X, con respecto a handDummie
-        sim.setObjectPosition(detectedObjectHandle, handDummie, x)
+        sim.setObjectParent(detectedObjectHandle, pelotaAttach, true)
+        sim.setObjectPosition(detectedObjectHandle, pelotaAttach, x)
+
     end
 
 end
